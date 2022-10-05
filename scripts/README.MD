@@ -17,3 +17,18 @@ Will deploy the contract and call init on it.
 You will need to modify the file to have the proper keysets. By default, GOV and OPS will be whatever you define in the `keys.json` file.
 
 If you wish to do a local send, comment out `send_and_listen` and comment in `local`.
+
+##### check_requrest.py
+
+Use this to listen to transactions using tx ids.
+
+`python3 check_request.py -k TX_ID`
+
+This will stall until the tx is done.
+
+##### run_pact.py
+
+Use this to run custom pact code locally.  
+You will have to change the python doc to have the code you want to run.  
+
+`python3 run_pact.py`
