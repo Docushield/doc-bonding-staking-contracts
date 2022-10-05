@@ -35,6 +35,7 @@
     token-id:string
     payout-coin:module{fungible-v2}
     payout-bank:string
+    escrow:string
     token-value:decimal
     mature-time:time ;; Defines when the tokens will be claimable
     status:string ;; Used to cancel a bond
@@ -90,6 +91,7 @@
         )
 
         (payout-coin::create-account account-name p-guard)
+        (marmalade.ledger.create-account token-id account-name p-guard)
 
         ; Create the bonded nft record
         (insert bonded-nfts pool-name
@@ -98,6 +100,7 @@
             , "token-id": token-id
             , "payout-coin": payout-coin
             , "payout-bank": account-name
+            , "escrow": account-name
             , "token-value": token-value
             , "mature-time": mature-time 
             , "status": STATUS_ACTIVE
@@ -119,6 +122,7 @@
         { "token-id" := token-id
         , "token-value" := token-value
         , "payout-bank" := bank
+        , "escrow" := escrow
         , "payout-coin" := payout-coin:module{fungible-v2}
         , "mature-time" := mature-time
         , "status" := status }
@@ -134,9 +138,14 @@
             (
               (to-claim (* token-value balance))
             )
-  
+            
+            ; Transfer them the funds
             (install-capability (payout-coin::TRANSFER bank account to-claim))
             (payout-coin::transfer-create bank account guard to-claim)
+
+            ; Take their bonded NFT, give them the keepsake
+            (marmalade.ledger.transfer token-id account escrow balance)
+            ; TODO: Give them a keepsake NFT, represents a redeemed bond 
 
             (format "Claimed {} tokens." [to-claim])
           )
@@ -170,6 +179,10 @@
 
   (defun get-pool-bank:string (pool-name:string)
     (at "payout-bank" (read bonded-nfts pool-name ["payout-bank"]))
+  )
+
+  (defun get-pool-escrow:string (pool-name:string)
+    (at "escrow" (read bonded-nfts pool-name ["escrow"]))
   )
 
   (defun get-pool-token-id:string (pool-name:string)
@@ -296,14 +309,14 @@
   ;; -------------------------------
   ;; Utils
 
-  (defun require-WITHDRAW:bool ()
+  (defun require-WITHDRAW:bool (pool-name:string)
     (require-capability (WITHDRAW))
     true
   )
 
   (defun pool-guard:guard (pool-name:string)
     @doc "Creates a guard that is used for the bank of the pool"
-    (create-user-guard (require-WITHDRAW))
+    (create-user-guard (require-WITHDRAW pool-name))
   )
 
   (defun pool-account-name:string (pool-name:string)

@@ -1,6 +1,6 @@
 (load "dependencies/dependencies.repl")
 
-(begin-tx)
+(begin-tx "Setup")
 ;  (env-enable-repl-natives true)
 (env-keys ["admin", "ops"])
 (env-data 
@@ -18,7 +18,7 @@
 
 ;; TX tests creating a pool, setters, and getters.
 ;; TX does not test for any errors or permissions.
-(begin-tx)
+(begin-tx "Test creating pool, setters, getters")
 (env-chain-data { "block-time": (time "2000-01-01T00:00:00Z") })
 
 (use free.marmalade-nft-bonding)
@@ -220,7 +220,7 @@
 
 
 ;; TX tests claiming from a pool. Tests all possible cases
-(begin-tx)
+(begin-tx "Claiming from pool")
 (use free.marmalade-nft-bonding)
 (env-chain-data { "block-time": (time "2000-01-01T00:00:00Z") })
 
@@ -289,18 +289,32 @@
   (get-claimable-tokens "pool1" "person1")
 )
 (env-keys ["person1"])
-(env-sigs [{ "key": "person1", "caps": [(free.marmalade-nft-bonding.CLAIM "pool1" "person1")]}])
+(env-sigs [{ "key": "person1", 
+  "caps": [
+    (free.marmalade-nft-bonding.CLAIM "pool1" "person1")
+    (marmalade.ledger.TRANSFER "token" "person1" (get-pool-escrow "pool1") 3.0)]}])
 (expect-that "Person1 can claim case 4"
   (= "Claimed 3000.0 tokens.")
   (claim "pool1" "person1")
 )
-
+(expect-that "No claimable tokens"
+  (= 0.0)
+  (get-claimable-tokens "pool1" "person1")
+)
+(expect-that "Tokens were transferred out"
+  (= 0.0)
+  (at "balance" (marmalade.ledger.details "token" "person1"))
+)
+(expect-that "Tokens were transferred out"
+  (= 3.0)
+  (at "balance" (marmalade.ledger.details "token" (get-pool-escrow "pool1")))
+)
 (commit-tx)
 
 
 
 ;; TX tests OPS guard rotations
-(begin-tx)
+(begin-tx "Ops guard rotation")
 (use free.marmalade-nft-bonding)
 
 (env-keys ["ops"])
@@ -344,7 +358,7 @@
 
 
 ;; TX tests permissions and smart contract enforces
-(begin-tx)
+(begin-tx "Permissions and enforces")
 (use free.marmalade-nft-bonding)
 
 ;; Can't make a pool with negative value
