@@ -1,6 +1,6 @@
 (namespace "free")
 
-(define-keyset "free.nft-bonding-admin" (read-keyset "nft-bonding-admin"))
+(define-keyset "free.nft-bonding-admin" (read-keyset "gov"))
 
 (module marmalade-nft-bonding GOV
   @doc "A contract that is used to give marmalade NFTs a bond value. \
