@@ -1,6 +1,6 @@
 (namespace "free")
 
-(define-keyset "free.nft-staker-admin" (read-keyset "nft-staker-admin"))
+(define-keyset "free.nft-staker-admin" (read-keyset "gov"))
 
 (module marmalade-nft-staking GOV
   @doc "A contract that is used to stake marmalade NFTs. \
