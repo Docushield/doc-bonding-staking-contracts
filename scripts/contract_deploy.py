@@ -5,13 +5,11 @@ from kadena_sdk.key_pair import KeyPair
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-p') # Contract path
-parser.add_argument('-n') # Contract name
 parser.add_argument('-i') # Init, providing a value means it's true
 args = parser.parse_args()
 
 # Setup Endpoint and Keys
 CONTRACT_PATH = args.p
-CONTRACT_NAME = args.n
 init = args.i != None
 
 MAINNET = {
@@ -32,7 +30,7 @@ sdk = KadenaSdk(key_pair,
   NETWORK['network_id'], 
   NETWORK['chain_id'])
 
-print(f'Deploying {CONTRACT_NAME} located at {CONTRACT_PATH}. Initialize: {init}')
+print(f'Deploying contract located at {CONTRACT_PATH}. Initialize: {init}')
 
 contract_content = ''
 with open(CONTRACT_PATH, 'r') as f:

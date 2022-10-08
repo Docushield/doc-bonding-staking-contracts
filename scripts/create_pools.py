@@ -3,7 +3,33 @@ from kadena_sdk.kadena_sdk import KadenaSdk
 from kadena_sdk.key_pair import KeyPair
 
 # Code to run
-
+PACT_CODE = '''
+(free.marmalade-nft-bonding.create-bonded-nft
+  "test"
+  "swag-token"
+  coin
+  100.0
+  (time "2022-12-25T00:00:00Z")
+)
+(free.marmalade-nft-staking.create-unlocked-nft-pool
+  "test-unlocked"
+  "swag-token"
+  coin
+  0.5
+  100.0
+  (time "2022-10-31T00:00:00Z")
+)
+(free.marmalade-nft-staking.create-locked-nft-pool
+  "test-locked"
+  "swag-token"
+  coin
+  0.5
+  100.0
+  (time "2022-10-31T00:00:00Z")
+  5184000.0 ;; 60 days of lock time
+  2.0
+)
+'''
 
 MAINNET = {
   'base_url': 'https://api.chainweb.com',
@@ -23,19 +49,10 @@ sdk = KadenaSdk(key_pair,
   NETWORK['network_id'], 
   NETWORK['chain_id'])
 
-PACT_CODE = f'''(marmalade.ledger.transfer-create 
-"swag-token" 
-"k:{key_pair.get_pub_key()}" 
-"k:aeecd476ad8a4842ec84f3fbdad39b73fe7329fb4feaa3ea4367314a29a7e42b"
-(read-keyset "to-keyset")
-100.0)
-'''
-
 payload = {
   "exec": {
     "data": {
-      "nft-staker-admin": { "keys": [key_pair.get_pub_key()], "pred": "keys-all"},
-      "to-keyset": { "keys": ["aeecd476ad8a4842ec84f3fbdad39b73fe7329fb4feaa3ea4367314a29a7e42b"], "pred": "keys-all" }
+      "nft-staker-admin": { "keys": [key_pair.get_pub_key()], "pred": "keys-all"}
     },
     "code": PACT_CODE,
   }
@@ -45,8 +62,12 @@ signers = [
     "pubKey": key_pair.get_pub_key(),
     "clist": [
       {
-        "name": 'marmalade.ledger.TRANSFER',
-        "args": ["swag-token", f"k:{key_pair.get_pub_key()}", "k:aeecd476ad8a4842ec84f3fbdad39b73fe7329fb4feaa3ea4367314a29a7e42b", 100.0]
+        "name": f"free.marmalade-nft-bonding.OPS",
+        "args": []
+      },
+      {
+        "name": f"free.marmalade-nft-staking.OPS",
+        "args": []
       },
       {
         "name": "coin.GAS",
