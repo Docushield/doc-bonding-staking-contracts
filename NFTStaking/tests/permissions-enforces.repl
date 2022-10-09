@@ -331,7 +331,7 @@
 )
 
 (expect-failure "Can't call init without gov"
-  "Keyset failure (=): 'free.nft-staker-admin"
+  "Keyset failure (=): 'free.nft-staking-admin"
   (init (read-keyset "person3-keyset"))
 )
 

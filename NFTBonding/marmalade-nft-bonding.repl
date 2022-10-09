@@ -5,7 +5,7 @@
 (env-keys ["admin", "ops"])
 (env-data 
   { 
-    "nft-bonding-admin": { "keys": ["admin"], "pred": "="},
+    "gov": { "keys": ["admin"], "pred": "="},
     "ops": { "keys": ["ops"], "pred": "="},
     "init": true
   })
@@ -431,6 +431,15 @@
 (expect-failure "Can't claim for someone else"
   "(enforce-guard (at \"guard\" (ma...: Failure: Tx Failed: Keyset failure (=): [person2]"
   (claim "pool1" "person2")
+)
+
+(env-data 
+  { 
+    "person3-keyset": { "keys": ["person3"], "pred": "="}
+  })
+(expect-failure "Can't call init without gov"
+  "Keyset failure (=): 'free.nft-bonding-admin"
+  (init (read-keyset "person3-keyset"))
 )
 
 (commit-tx)
