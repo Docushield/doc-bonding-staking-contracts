@@ -2,32 +2,46 @@
 from kadena_sdk.kadena_sdk import KadenaSdk
 from kadena_sdk.key_pair import KeyPair
 
+CONTRACT_NAME_BONDING = 'free.marmalade-nft-bonding'
+CONTRACT_NAME_STAKING = 'free.marmalade-nft-staking'
+BONDING_POOL_NAME = 'test'
+UNLOCKED_POOL_NAME = 'test-unlocked'
+LOCKED_POOL_NAME = 'test-locked'
+TOKEN_ID = 'swag-token'
+PAYOUT_COIN = 'coin'
+APY = '0.5'
+BOND_VALUE = '100.0'
+START_TIME = '2022-10-31T00:00:00Z'
+MATURE_TIME = '2022-12-25T00:00:00Z'
+LOCK_TIME_SECONDS = '5184000.0' # 60 days of lock time
+BONUS = '2.0'
+
 # Code to run
-PACT_CODE = '''
-(free.marmalade-nft-bonding.create-bonded-nft
-  "test"
-  "swag-token"
-  coin
-  100.0
-  (time "2022-12-25T00:00:00Z")
+PACT_CODE = f'''
+({CONTRACT_NAME_BONDING}.create-bonded-nft
+  "{BONDING_POOL_NAME}"
+  "{TOKEN_ID}"
+  {PAYOUT_COIN}
+  {BOND_VALUE}
+  (time "{MATURE_TIME}")
 )
-(free.marmalade-nft-staking.create-unlocked-nft-pool
-  "test-unlocked"
-  "swag-token"
-  coin
-  0.5
-  100.0
-  (time "2022-10-31T00:00:00Z")
+({CONTRACT_NAME_STAKING}.create-unlocked-nft-pool
+  "{UNLOCKED_POOL_NAME}"
+  "{TOKEN_ID}"
+  {PAYOUT_COIN}
+  {APY}
+  {BOND_VALUE}
+  (time "{START_TIME}")
 )
-(free.marmalade-nft-staking.create-locked-nft-pool
-  "test-locked"
-  "swag-token"
-  coin
-  0.5
-  100.0
-  (time "2022-10-31T00:00:00Z")
-  5184000.0 ;; 60 days of lock time
-  2.0
+({CONTRACT_NAME_STAKING}.create-locked-nft-pool
+  "{LOCKED_POOL_NAME}"
+  "{TOKEN_ID}"
+  {PAYOUT_COIN}
+  {APY}
+  {BOND_VALUE}
+  (time "{START_TIME}")
+  {LOCK_TIME_SECONDS}
+  {BONUS}
 )
 '''
 

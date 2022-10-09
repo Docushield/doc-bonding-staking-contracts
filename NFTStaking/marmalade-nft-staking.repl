@@ -5,7 +5,7 @@
 (env-keys ["admin", "ops"])
 (env-data 
   { 
-    "nft-staker-admin": { "keys": ["admin"], "pred": "="},
+    "gov": { "keys": ["admin"], "pred": "="},
     "ops": { "keys": ["ops"], "pred": "="},
     "init": true
   })
@@ -22,3 +22,10 @@
 
 ;; Permissions, enforces, etc
 (load "tests/permissions-enforces.repl")
+
+(begin-tx "Test local read functions")
+(use free.marmalade-nft-staking)
+
+(get-pools)
+(get-active-pools)
+(commit-tx)

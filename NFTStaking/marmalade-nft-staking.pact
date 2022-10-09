@@ -1,6 +1,6 @@
 (namespace "free")
 
-(define-keyset "free.nft-staker-admin" (read-keyset "gov"))
+(define-keyset "free.nft-staking-admin" (read-keyset "gov"))
 
 (module marmalade-nft-staking GOV
   @doc "A contract that is used to stake marmalade NFTs. \
@@ -8,7 +8,7 @@
   \ Thus, the NFT policy must accept transferring the token, or this will fail."
 
   (defcap GOV ()
-    (enforce-guard "free.nft-staker-admin")
+    (enforce-guard "free.nft-staking-admin")
   )
 
   ;; -------------------------------
@@ -19,7 +19,7 @@
   (defconst STATUS_ACTIVE:string "ACTIVE"
     @doc "Active means you can stake to the pool.")
   (defconst STATUS_INACTIVE:string "INACTIVE"
-    @doc "Inactive means you cannot stake to the pool.")
+    @doc "Inactive means you cannot stake to the pool, and you cannot claim tokens from the pool.")
   
   (defconst OPS_GUARD:string "ops")
 
@@ -40,8 +40,8 @@
     token-value:decimal
     apy:decimal
     status:string
-    is-locked-pool:bool
     start-time:time
+    is-locked-pool:bool
     lock-time-seconds:decimal
     lock-bonus:decimal
   )
@@ -99,9 +99,11 @@
       payout-coin:module{fungible-v2}
       apy:decimal
       token-value:decimal
+      start-time:time
     )
     @doc "Creates a stakable nft with necessary parameters. \
-    \ Creates a bank account that is managed by the user guard."
+    \ Creates a bank account that is managed by the user guard. \
+    \ Cannot stake into the pool until after the given start time."
 
     (with-capability (OPS)
       (create-nft-pool 
@@ -110,8 +112,8 @@
         payout-coin
         apy
         token-value
+        start-time ; Origin of time: 1970
         false ; Not a locked pool
-        (time "1970-01-01T00:00:00Z") ; Origin of time: 1970
         0.0 ; No lock time
         0.0) ; No bonus
     )
@@ -135,7 +137,7 @@
 
     (enforce (>= bonus 0.0) "Lock bonus must be greater than or equal to 0")
     (enforce (>= lock-time-seconds 0.0) "Lock time must be greater than or equal to 0")
-    (enforce (not (pool-is-locked start-time lock-time-seconds)) "Start time after right the fetch now")
+    ;  (enforce (not (pool-is-locked start-time lock-time-seconds)) "Start time after right the fetch now")
 
     (with-capability (OPS)
       (create-nft-pool 
@@ -144,8 +146,8 @@
         payout-coin
         apy
         token-value
-        true
         start-time
+        true
         lock-time-seconds
         bonus)
     )
@@ -158,8 +160,8 @@
       payout-coin:module{fungible-v2}
       apy:decimal
       token-value:decimal
-      is-locked-pool:bool
       start-time:time
+      is-locked-pool:bool
       lock-time-seconds:decimal
       lock-bonus:decimal
     )
@@ -222,8 +224,8 @@
       , "payout-bank" := bank
       , "payout-coin" := payout-coin:module{fungible-v2}
       , "status" := status
-      , "is-locked-pool" := is-locked-pool
       , "start-time" := start-time
+      , "is-locked-pool" := is-locked-pool
       , "lock-time-seconds" := lock-time-seconds
       , "lock-bonus" := lock-bonus
       }
@@ -232,9 +234,7 @@
 
       ;; Enforce locked pool params
       (if is-locked-pool
-        [
-          (enforce (< (curr-time) start-time) "Can't stake into a locked pool that has started or ended")
-        ]
+        (enforce (< (curr-time) start-time) "Can't stake into a locked pool that has started or ended")
         []
       )
 
@@ -243,7 +243,10 @@
         , "pool-name": pool-name
         , "guard": guard
         , "amount": -1.0
-        , "stake-start-time": (if is-locked-pool start-time (curr-time)) ; If it is a locked pool, start earning tokens at time of token lock
+        , "stake-start-time": (if (or is-locked-pool (> start-time (curr-time))) ; If it is a locked pool, or the start time was before NOW 
+            start-time ; start earning when the pool starts
+            (curr-time) ; Otherwise, start earning immediately
+          ) 
         , "bonus": lock-bonus
         }
         { "amount" := curr-amount
@@ -454,7 +457,15 @@
   ;; Getters and Setters
 
   (defun get-pools:[object{nft-pool}] ()
-    (select nft-pools)
+    (select nft-pools (where "pool-name" (!= "")))
+  )
+
+  (defun get-active-pools:[object{nft-pool}] ()
+    (select nft-pools (where "status" (= STATUS_ACTIVE)))
+  )
+
+  (defun get-pool-details:object{nft-pool} (pool-name:string)
+    (read nft-pools pool-name)
   )
 
   (defun get-staked-nfts-for-account:[object{staked-nft}] (account:string)

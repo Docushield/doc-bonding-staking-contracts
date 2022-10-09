@@ -10,7 +10,8 @@
   "token"
   coin
   0.1
-  1000.0)
+  1000.0
+  (time "1970-01-01T00:00:00Z"))
 
 (create-locked-nft-pool
   "perms-unlockedcked"
@@ -107,7 +108,8 @@
     "token"
     coin
     0.1
-    1000.0)
+    1000.0
+    (time "1970-01-01T00:00:00Z"))
 )
 (expect-failure "Can't create locked pool"
   "Keyset failure (=): [ops]"
@@ -129,8 +131,8 @@
     coin
     0.1
     1000.0
-    true
     (time "2001-01-01T00:00:00Z")
+    true
     SECONDS_IN_YEAR
     50.0)
 )

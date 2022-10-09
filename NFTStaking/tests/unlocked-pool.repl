@@ -11,7 +11,8 @@
   "token"
   coin
   0.1
-  1000.0)
+  1000.0
+  (time "2001-01-01T00:00:00Z"))
 (expect-that "apy is correct"
   (= 0.1)
   (get-pool-apy "pool1")
@@ -101,6 +102,27 @@
   (= 2.0)
   (get-staked-for-pool "pool1" "person1")
 )
+(expect-that "Start time for pool is correct"
+  (= (time "2001-01-01T00:00:00Z"))
+  (get-start-time-for-pool "pool1" "person1")
+)
+
+(env-keys ["person4"])
+(env-data { "person4-keyset": { "keys": ["person4"], "pred": "="} })
+(env-sigs
+  [{
+    "key": "person4",
+    "caps": [
+      (marmalade.ledger.TRANSFER "token" "person4" (get-pool-escrow "pool1") 2.0)
+      (free.marmalade-nft-staking.STAKE "pool1" "person4" 2.0)
+    ]
+  }])
+(env-chain-data { "block-time": (time "2002-01-01T00:00:00Z") })
+(stake "pool1" "person4" 2.0 (read-keyset "person4-keyset"))
+(expect-that "Start time for pool is correct"
+  (= (time "2002-01-01T00:00:00Z"))
+  (get-start-time-for-pool "pool1" "person4")
+)
 (commit-tx)
 
 ;; Claim
@@ -115,7 +137,19 @@
       (free.marmalade-nft-staking.CLAIM "pool1" "person1")
     ]
   }])
+
+; Nothing to claim before the start date
 (env-chain-data { "block-time": (time "2000-12-31T00:00:00Z") })
+(expect-that "Nothing to claim before the start date"
+  (= "Nothing claimed")
+  (claim "pool1" "person1")
+)
+(expect-that "Claimable tokens is 0"
+  (= 0.0)
+  (get-claimable-tokens "pool1" "person1")
+)
+
+(env-chain-data { "block-time": (time "2002-01-01T00:00:00Z") })
 (expect-that "Claim transfers funds and reset claimable"
   (= "Claimed 200.00 tokens.")
   (claim "pool1" "person1")
@@ -143,7 +177,11 @@
       (free.marmalade-nft-staking.STAKE "pool1" "person1" 1.0)
     ]
   }])
-(env-chain-data { "block-time": (time "2001-12-31T00:00:00Z") })
+(env-chain-data { "block-time": (time "2003-01-01T00:00:00Z") })
+(expect-that "Claimable tokens is 200"
+  (= 200.0)
+  (get-claimable-tokens "pool1" "person1")
+)
 (stake "pool1" "person1" 1.0 (read-keyset "person1-keyset"))
 (expect-that "Remaining balance"
   (= 0.0)
@@ -175,7 +213,7 @@
       (free.marmalade-nft-staking.UNSTAKE "pool1" "person1" 1.0)
     ]
   }])
-(env-chain-data { "block-time": (time "2002-12-31T00:00:00Z") })
+(env-chain-data { "block-time": (time "2004-01-01T00:00:00Z") })
 (unstake "pool1" "person1" 1.0)
 (expect-that "Remaining balance"
   (= 1.0)

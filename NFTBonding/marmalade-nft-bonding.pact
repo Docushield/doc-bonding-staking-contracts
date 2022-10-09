@@ -158,7 +158,7 @@
   ;; Getters and Setters
 
   (defun get-pools:[object{bonded-nft}] ()
-    (select bonded-nfts)
+    (select bonded-nfts (where "pool-name" (!= "")))
   )
 
   (defun get-pool-details:object{bonded-nft} (pool-name:string)

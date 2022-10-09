@@ -1,6 +1,7 @@
 
 from kadena_sdk.kadena_sdk import KadenaSdk
 from kadena_sdk.key_pair import KeyPair
+import json
 
 # Code to run
 
@@ -59,7 +60,20 @@ signers = [
 print()
 cmd = sdk.build_command(f'k:{key_pair.get_pub_key()}', payload, signers)
 # result = sdk.local(cmd)
+cmd = {
+      "cmd": "{\"networkId\":\"testnet04\",\"payload\":{\"exec\":{\"data\":{\"ks\":{\"keys\":[\"aeecd476ad8a4842ec84f3fbdad39b73fe7329fb4feaa3ea4367314a29a7e42b\"],\"pred\":\"keys-all\"}},\"code\":\"(free.marmalade-nft-staking.stake \\\"test-locked\\\" \\\"k:aeecd476ad8a4842ec84f3fbdad39b73fe7329fb4feaa3ea4367314a29a7e42b\\\" 5.0 (read-keyset \\\"ks\\\"))\"}},\"signers\":[{\"clist\":[{\"name\":\"marmalade.ledger.TRANSFER\",\"args\":[\"k:aeecd476ad8a4842ec84f3fbdad39b73fe7329fb4feaa3ea4367314a29a7e42b\",\"u:free.marmalade-nft-staking.require-WITHDRAW:y3ypWBoBlBCAGDEg9pv_vsMEFeMGfqEv0pfWV-Nner0\",5]},{\"name\":\"free.marmalade-nft-staking.STAKE\",\"args\":[\"test-locked\",\"k:aeecd476ad8a4842ec84f3fbdad39b73fe7329fb4feaa3ea4367314a29a7e42b\",5]}],\"pubKey\":\"aeecd476ad8a4842ec84f3fbdad39b73fe7329fb4feaa3ea4367314a29a7e42b\"}],\"meta\":{\"creationTime\":1665287450,\"ttl\":600,\"gasLimit\":15000,\"chainId\":\"1\",\"gasPrice\":0.00001,\"sender\":\"k:aeecd476ad8a4842ec84f3fbdad39b73fe7329fb4feaa3ea4367314a29a7e42b\"},\"nonce\":\"\\\"\\\\\\\"2022-10-09T03:52:20.828Z\\\\\\\"\\\"\"}",
+      "hash": "nLGnoHqy4nV9CpIgDQm6r9Oy3oCUNqyEunsgxsRk2Og",
+      "sigs": [
+          {
+              "sig": "e13580bb7c777f157fc760cd65973659bd12cd17275f70def3607df9eaf8b8cb02f90acc20c812cdbac52cf724341e9b95b3ff77c41f6337454308be07f08007"
+          }
+      ]
+  }
 result = sdk.send_and_listen(cmd)
 print(result.text)
+
+# jason = json.dumps(cmd)
+# print(jason)
+# print(json.loads(jason))
 
 print()

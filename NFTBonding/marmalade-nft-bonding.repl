@@ -436,3 +436,8 @@
 (commit-tx)
 
 
+(begin-tx "Test local read functions")
+(use free.marmalade-nft-bonding)
+
+(get-pools)
+(commit-tx)
