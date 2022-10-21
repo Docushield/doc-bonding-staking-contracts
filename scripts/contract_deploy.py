@@ -15,14 +15,14 @@ init = args.i != None
 MAINNET = {
   'base_url': 'https://api.chainweb.com',
   'network_id': 'mainnet01',
-  'chain_id': '1',
+  'chain_id': '8',
 }
 TESTNET = {
   'base_url': 'https://api.testnet.chainweb.com',
   'network_id': 'testnet04',
   'chain_id': '1',
 }
-NETWORK = TESTNET
+NETWORK = MAINNET
 
 key_pair = KeyPair('keys.json')
 sdk = KadenaSdk(key_pair, 
@@ -39,8 +39,7 @@ with open(CONTRACT_PATH, 'r') as f:
 payload = {
   "exec": {
     "data": {
-      "gov": { "keys": [key_pair.get_pub_key()], "pred": "keys-all"},
-      "ops": { "keys": [key_pair.get_pub_key()], "pred": "keys-all"},
+      "gov": { "keys": ["86f16edfb6d0535248c354557ec663cc44b06f5bfa10d034994cfddcddb00ec0"], "pred": "keys-all"},
       "init": init
     },
     "code": contract_content,

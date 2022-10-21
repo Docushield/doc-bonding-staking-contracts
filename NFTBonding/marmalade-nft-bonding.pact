@@ -1,14 +1,12 @@
 (namespace "free")
 
-(define-keyset "free.nft-bonding-admin" (read-keyset "gov"))
-
 (module marmalade-nft-bonding GOV
   @doc "A contract that is used to give marmalade NFTs a bond value. \
   \ The contract defines the bonded value of the NFT, and the time to maturity. \
   \ Tokens are claimable once the bond matures."
 
   (defcap GOV ()
-    (enforce-guard "free.nft-bonding-admin")
+    (enforce-guard (at "guard" (read m-guards GOV_GUARD ["guard"])))
   )
 
   ;; -------------------------------
@@ -19,12 +17,13 @@
   (defconst STATUS_CANCELED:string "CANCELED"
     @doc "Canceled means the bond will not be claimable at the time of maturity.")
   
+  (defconst GOV_GUARD:string "gov")
   (defconst OPS_GUARD:string "ops")
 
   ;; -------------------------------
   ;; Schemas
 
-  (defschema m-guard ;; ID is a const: OPS_GUARD, etc.
+  (defschema m-guard ;; ID is a const: OPS_GUARD, GOV_GUARD etc.
     @doc "Stores guards for the module"
     guard:guard  
   )
@@ -306,6 +305,18 @@
     )
   )
 
+  (defun rotate-gov:string (guard:guard)
+    @doc "Requires GOV. Changes the gov guard to the provided one."
+
+    (with-capability (GOV)
+      (update m-guards GOV_GUARD
+        { "guard": guard }  
+      )
+
+      "Rotated GOV to a new guard"
+    )
+  )
+
   ;; -------------------------------
   ;; Utils
 
@@ -346,13 +357,18 @@
     (at 'block-time (chain-data))
   )
 
-  (defun init:string (ops:guard)
+  (defun init:string (gov:guard ops:guard)
     @doc "Initializes the guards and creates the tables for the module"
 
-    (with-capability (GOV)
-      (insert m-guards OPS_GUARD
-        { "guard": ops }  
-      )
+    ;; This is only vulnerable if GOV_GUARD doesn't exist
+    ;; Which means it's only vulnerable if you don't call 
+    ;; init when you deploy the contract.
+    ;; So let us be sure that init is called. =)
+    (insert m-guards GOV_GUARD
+      { "guard": gov }  
+    )
+    (insert m-guards OPS_GUARD
+      { "guard": ops }  
     )
   )
 )
@@ -361,6 +377,6 @@
   [
     (create-table free.marmalade-nft-bonding.m-guards)
     (create-table free.marmalade-nft-bonding.bonded-nfts)
-    (free.marmalade-nft-bonding.init (read-keyset "ops"))
+    (free.marmalade-nft-bonding.init (read-keyset "gov") (read-keyset "ops"))
   ]
   "No init")

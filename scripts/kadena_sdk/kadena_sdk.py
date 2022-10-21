@@ -82,6 +82,7 @@ class KadenaSdk():
 
   def send_and_listen(self, command):
     result = self.send(command)
+    print(result.json())
     tx_id = result.json()['requestKeys'][0]
     print(f"Listening to tx: {tx_id}")
     return self.listen(tx_id)
