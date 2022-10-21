@@ -7,11 +7,11 @@
 (load "marmalade-nft-staking.repl")
 (load "marmalade-nft-staking.repl")
 (load "marmalade-nft-staking.repl")
+(load "marmalade-nft-staking.repl")
 reset
 reset
 repl reset
 reset
-(load "marmalade-nft-staking.repl")
 (load "marmalade-nft-staking.repl")
 (load "marmalade-nft-staking.repl")
 (load "marmalade-nft-staking.repl")

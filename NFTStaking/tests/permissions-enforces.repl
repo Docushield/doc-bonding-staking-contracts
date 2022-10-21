@@ -41,8 +41,34 @@
 
 
 ;; TX tests OPS guard rotations
-(begin-tx "Rotate ops guard")
+(begin-tx "Rotate gov and ops guard")
 (use free.marmalade-nft-staking)
+
+(env-keys ["admin"])
+(env-sigs [{ "key": "admin", "caps": [(free.marmalade-nft-staking.GOV)]}])
+(env-data 
+  { 
+    "gov2": { "keys": ["gov2"], "pred": "="}
+  })
+(expect-that "Rotating gov works"
+  (= "Rotated GOV to a new guard")
+  (rotate-gov (read-keyset "gov2"))
+)
+(expect-failure "Setting value with old keyset doesn't work"
+  "(enforce-guard (at \"guard\" (re...: Failure: Tx Failed: Keyset failure (=): [gov2]"
+  (rotate-gov (read-keyset "gov2"))
+)
+
+(env-keys ["gov2"])
+(env-sigs [{ "key": "gov2", "caps": [(free.marmalade-nft-staking.GOV)]}])
+(env-data 
+  { 
+    "gov": { "keys": ["admin"], "pred": "="}
+  })
+(expect-that "Rotating gov works"
+  (= "Rotated GOV to a new guard")
+  (rotate-gov (read-keyset "gov"))
+)
 
 (env-keys ["ops"])
 (env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-staking.OPS)]}])
@@ -331,8 +357,12 @@
 )
 
 (expect-failure "Can't call init without gov"
-  "Keyset failure (=): 'free.nft-staking-admin"
-  (init (read-keyset "person3-keyset"))
+  "Database exception"
+  (init (read-keyset "person3-keyset") (read-keyset "person3-keyset"))
+)
+(expect-failure "Can't rotate gov without gov"
+  "(enforce-guard (at \"guard\" (re...: Failure: Tx Failed: Keyset failure (=): [admin]"
+  (rotate-gov (read-keyset "person3-keyset"))
 )
 
 (commit-tx)

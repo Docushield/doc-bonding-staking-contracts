@@ -1,14 +1,12 @@
 (namespace "free")
 
-(define-keyset "free.nft-staking-admin" (read-keyset "gov"))
-
 (module marmalade-nft-staking GOV
   @doc "A contract that is used to stake marmalade NFTs. \
   \ Staking the NFT moves it into an escrow account using a pact. \
   \ Thus, the NFT policy must accept transferring the token, or this will fail."
 
   (defcap GOV ()
-    (enforce-guard "free.nft-staking-admin")
+    (enforce-guard (at "guard" (read m-guards GOV_GUARD ["guard"])))
   )
 
   ;; -------------------------------
@@ -21,6 +19,7 @@
   (defconst STATUS_INACTIVE:string "INACTIVE"
     @doc "Inactive means you cannot stake to the pool, and you cannot claim tokens from the pool.")
   
+  (defconst GOV_GUARD:string "gov")
   (defconst OPS_GUARD:string "ops")
 
   ;; -------------------------------
@@ -568,6 +567,18 @@
     )
   )
 
+  (defun rotate-gov:string (guard:guard)
+    @doc "Requires GOV. Changes the gov guard to the provided one."
+
+    (with-capability (GOV)
+      (update m-guards GOV_GUARD
+        { "guard": guard }  
+      )
+
+      "Rotated GOV to a new guard"
+    )
+  )
+
   ;; -------------------------------
   ;; Utils
 
@@ -638,13 +649,18 @@
     (at 'block-time (chain-data))
   )
 
-  (defun init:string (ops:guard)
+  (defun init:string (gov:guard ops:guard)
     @doc "Initializes the guards and creates the tables for the module"
 
-    (with-capability (GOV)
-      (insert m-guards OPS_GUARD
-        { "guard": ops }  
-      )
+    ;; This is only vulnerable if GOV_GUARD doesn't exist
+    ;; Which means it's only vulnerable if you don't call 
+    ;; init when you deploy the contract.
+    ;; So let us be sure that init is called. =)
+    (insert m-guards GOV_GUARD
+      { "guard": gov }  
+    )
+    (insert m-guards OPS_GUARD
+      { "guard": ops }  
     )
   )
 )
@@ -654,6 +670,6 @@
     (create-table free.marmalade-nft-staking.m-guards)
     (create-table free.marmalade-nft-staking.nft-pools)
     (create-table free.marmalade-nft-staking.staked-nfts)
-    (free.marmalade-nft-staking.init (read-keyset "ops"))
+    (free.marmalade-nft-staking.init (read-keyset "gov") (read-keyset "ops"))
   ]
   "No init")
