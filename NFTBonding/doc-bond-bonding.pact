@@ -1,6 +1,6 @@
 (namespace "free")
 
-(module marmalade-nft-bonding GOV
+(module doc-bond-bonding GOV
   @doc "A contract that is used to give marmalade NFTs a bond value. \
   \ The contract defines the bonded value of the NFT, and the time to maturity. \
   \ Tokens are claimable once the bond matures."
@@ -375,8 +375,8 @@
 
 (if (read-msg "init")
   [
-    (create-table free.marmalade-nft-bonding.m-guards)
-    (create-table free.marmalade-nft-bonding.bonded-nfts)
-    (free.marmalade-nft-bonding.init (read-keyset "gov") (read-keyset "ops"))
+    (create-table free.doc-bond-bonding.m-guards)
+    (create-table free.doc-bond-bonding.bonded-nfts)
+    (free.doc-bond-bonding.init (read-keyset "gov") (read-keyset "ops"))
   ]
   "No init")

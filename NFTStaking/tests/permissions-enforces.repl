@@ -1,9 +1,9 @@
 (begin-tx "Setup permission tests")
 (env-chain-data { "block-time": (time "1970-01-01T00:00:00Z") })
 
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["ops"])
-(env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-staking.OPS)]}])
+(env-sigs [{ "key": "ops", "caps": [(free.doc-bond-staking.OPS)]}])
 
 (create-unlocked-nft-pool
   "perms-unlocked"
@@ -42,10 +42,10 @@
 
 ;; TX tests OPS guard rotations
 (begin-tx "Rotate gov and ops guard")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 
 (env-keys ["admin"])
-(env-sigs [{ "key": "admin", "caps": [(free.marmalade-nft-staking.GOV)]}])
+(env-sigs [{ "key": "admin", "caps": [(free.doc-bond-staking.GOV)]}])
 (env-data 
   { 
     "gov2": { "keys": ["gov2"], "pred": "="}
@@ -60,7 +60,7 @@
 )
 
 (env-keys ["gov2"])
-(env-sigs [{ "key": "gov2", "caps": [(free.marmalade-nft-staking.GOV)]}])
+(env-sigs [{ "key": "gov2", "caps": [(free.doc-bond-staking.GOV)]}])
 (env-data 
   { 
     "gov": { "keys": ["admin"], "pred": "="}
@@ -71,7 +71,7 @@
 )
 
 (env-keys ["ops"])
-(env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-staking.OPS)]}])
+(env-sigs [{ "key": "ops", "caps": [(free.doc-bond-staking.OPS)]}])
 (env-data 
   { 
     "ops2": { "keys": ["ops2"], "pred": "="}
@@ -91,7 +91,7 @@
   (rotate-ops (read-keyset "ops2"))
 )
 (env-keys ["ops2"])
-(env-sigs [{ "key": "ops2", "caps": [(free.marmalade-nft-staking.OPS)]}])
+(env-sigs [{ "key": "ops2", "caps": [(free.doc-bond-staking.OPS)]}])
 (expect-that "Setting value works"
   (= "Pool status updated to: INACTIVE")
   (set-pool-status "perms-unlocked" "INACTIVE")
@@ -115,7 +115,7 @@
 
 
 (begin-tx "Ops guarded functions")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 
 (env-keys ["person3"])
 (env-data { "person3-keyset": { "keys": ["person3"], "pred": "="} })
@@ -123,7 +123,7 @@
   [{
     "key": "person3",
     "caps": [
-      (free.marmalade-nft-staking.OPS)
+      (free.doc-bond-staking.OPS)
     ]
   }])
 
@@ -150,7 +150,7 @@
     50.0)
 )
 (expect-failure "Can't call internal create pool"
-  "require-capability: not granted: (free.marmalade-nft-staking.OPS)"
+  "require-capability: not granted: (free.doc-bond-staking.OPS)"
   (create-nft-pool
     "pool2"
     "token"
@@ -176,7 +176,7 @@
 
 
 (begin-tx "Status can be set and affects things properly")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person3"])
 (env-data { "person3-keyset": { "keys": ["person3"], "pred": "="} })
 (env-sigs
@@ -184,13 +184,13 @@
     "key": "person3",
     "caps": [
       (marmalade.ledger.TRANSFER "token" "person3" (get-pool-escrow "perms-unlocked") 2.0)
-      (free.marmalade-nft-staking.STAKE "perms-unlocked" "person3" 1.0)
+      (free.doc-bond-staking.STAKE "perms-unlocked" "person3" 1.0)
     ]
   }])
 (stake "perms-unlocked" "person3" 1.0 (read-keyset "person3-keyset"))
 
 (env-keys ["ops"])
-(env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-staking.OPS)]}])
+(env-sigs [{ "key": "ops", "caps": [(free.doc-bond-staking.OPS)]}])
 (expect-that "Setting value works"
   (= "Pool status updated to: INACTIVE")
   (set-pool-status "perms-unlocked" "INACTIVE")
@@ -205,7 +205,7 @@
     "key": "person3",
     "caps": [
       (marmalade.ledger.TRANSFER "token" "person3" (get-pool-escrow "perms-unlocked") 2.0)
-      (free.marmalade-nft-staking.STAKE "perms-unlocked" "person3" 1.0)
+      (free.doc-bond-staking.STAKE "perms-unlocked" "person3" 1.0)
     ]
   }])
 (expect-failure "Can't stake"
@@ -218,7 +218,7 @@
   [{
     "key": "person3",
     "caps": [
-      (free.marmalade-nft-staking.CLAIM "perms-unlocked" "person3")
+      (free.doc-bond-staking.CLAIM "perms-unlocked" "person3")
     ]
   }])
 (expect-failure "Can't claim"
@@ -231,7 +231,7 @@
   [{
     "key": "person3",
     "caps": [
-      (free.marmalade-nft-staking.UNSTAKE "perms-unlocked" "person3" 1.0)
+      (free.doc-bond-staking.UNSTAKE "perms-unlocked" "person3" 1.0)
     ]
   }])
 (expect-that "Can unstake"
@@ -240,7 +240,7 @@
 )
 
 (env-keys ["ops"])
-(env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-staking.OPS)]}])
+(env-sigs [{ "key": "ops", "caps": [(free.doc-bond-staking.OPS)]}])
 (expect-that "Setting value works"
   (= "Pool status updated to: ACTIVE")
   (set-pool-status "perms-unlocked" "ACTIVE")
@@ -251,7 +251,7 @@
 
 
 (begin-tx "Cannot unstake/claim for someone else")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 
 (env-keys ["person3"])
 (env-data 
@@ -263,7 +263,7 @@
     "key": "person3",
     "caps": [
       (marmalade.ledger.TRANSFER "token" "person3" (get-pool-escrow "perms-unlocked") 1.0)
-      (free.marmalade-nft-staking.STAKE "perms-unlocked" "person3" 1.0)
+      (free.doc-bond-staking.STAKE "perms-unlocked" "person3" 1.0)
     ]
   }])
 (stake "perms-unlocked" "person3" 1.0 (read-keyset "person3-keyset"))
@@ -272,7 +272,7 @@
   [{
     "key": "person3",
     "caps": [
-      (free.marmalade-nft-staking.UNSTAKE "perms-unlocked" "person3" 0.0)
+      (free.doc-bond-staking.UNSTAKE "perms-unlocked" "person3" 0.0)
     ]
   }])
 (expect-failure "Can't unstake 0.0"
@@ -283,7 +283,7 @@
   [{
     "key": "person3",
     "caps": [
-      (free.marmalade-nft-staking.UNSTAKE "perms-unlocked" "person3" -1.0)
+      (free.doc-bond-staking.UNSTAKE "perms-unlocked" "person3" -1.0)
     ]
   }])
 (expect-failure "Can't unstake negative"
@@ -301,7 +301,7 @@
   [{
     "key": "person2",
     "caps": [
-      (free.marmalade-nft-staking.UNSTAKE "perms-unlocked" "person3" 1.0)
+      (free.doc-bond-staking.UNSTAKE "perms-unlocked" "person3" 1.0)
     ]
   }])
 (expect-failure "Unstaking for someone else fails"
@@ -314,7 +314,7 @@
   [{
     "key": "person2",
     "caps": [
-      (free.marmalade-nft-staking.CLAIM "perms-unlocked" "person3")
+      (free.doc-bond-staking.CLAIM "perms-unlocked" "person3")
     ]
   }])
 (expect-failure "Claiming for someone else fails"
@@ -326,7 +326,7 @@
 
 
 (begin-tx "Misc permissions")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person3"])
 (env-data 
   { 
@@ -336,12 +336,12 @@
   [{
     "key": "person3",
     "caps": [
-      (free.marmalade-nft-staking.CLAIM "perms-unlocked" "person3")
+      (free.doc-bond-staking.CLAIM "perms-unlocked" "person3")
     ]
   }])
 
 (expect-failure "Can't call internal claim"
-  "require-capability: not granted: (free.marmalade-nft-staking.CLAIM \"perms-unlocked\" \"person3\")"
+  "require-capability: not granted: (free.doc-bond-staking.CLAIM \"perms-unlocked\" \"person3\")"
   (internal-claim
     "perms-unlocked"
     "ACTIVE"
@@ -370,7 +370,7 @@
 
 
 (begin-tx "Calculate claimable tests")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 
 ; 1 second == 1 / SECONDS IN YEAR * apy * value return
 ; 1 day == 24 * 60 * 60 / SECOND_IN_YEAR * apy * value return
@@ -398,7 +398,7 @@
 (commit-tx)
 
 (begin-tx "Pool is locked tests")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 
 (env-chain-data { "block-time": (time "2000-01-01T00:00:00Z") })
 (expect-that "Before start: not locked"
@@ -429,7 +429,7 @@
 (commit-tx)
 
 (begin-tx "Is claimable tests")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 
 (env-chain-data { "block-time": (time "1999-01-01T00:00:00Z") })
 (expect-that "Before start, active: not"

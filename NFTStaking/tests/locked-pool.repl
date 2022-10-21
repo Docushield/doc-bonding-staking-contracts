@@ -1,11 +1,11 @@
 (begin-tx "Create unlocked pool")
 (env-chain-data { "block-time": (time "2000-01-01T00:00:00Z") })
 
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 
 ;; Can create an unlocked pool and access values
 (env-keys ["ops"])
-(env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-staking.OPS)]}])
+(env-sigs [{ "key": "ops", "caps": [(free.doc-bond-staking.OPS)]}])
 (create-locked-nft-pool
   "pool2"
   "token"
@@ -24,11 +24,11 @@
   (get-pool-token-id "pool2")
 )
 (expect-that "bank is correct"
-  (= "u:free.marmalade-nft-staking.require-WITHDRAW:1L0dwxpMI78eumhQzfRVTbZUIVB2sTrvnqRgffEYemQ")
+  (= "u:free.doc-bond-staking.require-WITHDRAW:1L0dwxpMI78eumhQzfRVTbZUIVB2sTrvnqRgffEYemQ")
   (get-pool-bank "pool2")
 )
 (expect-that "escrow is correct"
-  (= "u:free.marmalade-nft-staking.require-WITHDRAW:1L0dwxpMI78eumhQzfRVTbZUIVB2sTrvnqRgffEYemQ")
+  (= "u:free.doc-bond-staking.require-WITHDRAW:1L0dwxpMI78eumhQzfRVTbZUIVB2sTrvnqRgffEYemQ")
   (get-pool-escrow "pool2")
 )
 (expect-that "Status is active"
@@ -73,7 +73,7 @@
   [{
     "key": "ops",
     "caps": [
-      (free.marmalade-nft-staking.OPS)
+      (free.doc-bond-staking.OPS)
     ]
   }])
 (expect-that "Withdraw 1000 from bank"
@@ -95,7 +95,7 @@
 
 ;; Staking
 (begin-tx "Locked Pool Stake before start")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person2"])
 (env-data { "person2-keyset": { "keys": ["person2"], "pred": "="} })
 (env-sigs
@@ -103,7 +103,7 @@
     "key": "person2",
     "caps": [
       (marmalade.ledger.TRANSFER "token" "person2" (get-pool-escrow "pool2") 2.0)
-      (free.marmalade-nft-staking.STAKE "pool2" "person2" 2.0)
+      (free.doc-bond-staking.STAKE "pool2" "person2" 2.0)
     ]
   }])
 (env-chain-data { "block-time": (time "2000-01-01T00:00:00Z") })
@@ -120,14 +120,14 @@
 
 ;; Claim
 (begin-tx "Locked Pool Claim: Nothing before start")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person2"])
 (env-data { "person2-keyset": { "keys": ["person2"], "pred": "="} })
 (env-sigs
   [{
     "key": "person2",
     "caps": [
-      (free.marmalade-nft-staking.CLAIM "pool2" "person2")
+      (free.doc-bond-staking.CLAIM "pool2" "person2")
     ]
   }])
 (env-chain-data { "block-time": (time "2000-06-01T00:00:00Z") })
@@ -148,14 +148,14 @@
 
 ;; Unstaking
 (begin-tx "Locked Pool Unstake before start")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person2"])
 (env-data { "person2-keyset": { "keys": ["person2"], "pred": "="} })
 (env-sigs
   [{
     "key": "person2",
     "caps": [
-      (free.marmalade-nft-staking.UNSTAKE "pool2" "person2" 1.0)
+      (free.doc-bond-staking.UNSTAKE "pool2" "person2" 1.0)
     ]
   }])
 (env-chain-data { "block-time": (time "2000-06-01T00:00:00Z") })
@@ -175,7 +175,7 @@
 (commit-tx)
 
 (begin-tx "Locked Pool Stake after start")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person2"])
 (env-data { "person2-keyset": { "keys": ["person2"], "pred": "="} })
 (env-sigs
@@ -183,7 +183,7 @@
     "key": "person2",
     "caps": [
       (marmalade.ledger.TRANSFER "token" "person2" (get-pool-escrow "pool2") 2.0)
-      (free.marmalade-nft-staking.STAKE "pool2" "person2" 2.0)
+      (free.doc-bond-staking.STAKE "pool2" "person2" 2.0)
     ]
   }])
 
@@ -201,14 +201,14 @@
 (commit-tx)
 
 (begin-tx "Locked Pool Unstake after start")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person2"])
 (env-data { "person2-keyset": { "keys": ["person2"], "pred": "="} })
 (env-sigs
   [{
     "key": "person2",
     "caps": [
-      (free.marmalade-nft-staking.UNSTAKE "pool2" "person2" 1.0)
+      (free.doc-bond-staking.UNSTAKE "pool2" "person2" 1.0)
     ]
   }])
 
@@ -227,14 +227,14 @@
 
 ;; Claim
 (begin-tx "Locked Pool Claim: Can claim after start, bonus immediately available")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person2"])
 (env-data { "person2-keyset": { "keys": ["person2"], "pred": "="} })
 (env-sigs
   [{
     "key": "person2",
     "caps": [
-      (free.marmalade-nft-staking.CLAIM "pool2" "person2")
+      (free.doc-bond-staking.CLAIM "pool2" "person2")
     ]  }])
 
 (env-chain-data { "block-time": (time "2001-01-01T00:00:01Z") })
@@ -257,14 +257,14 @@
 (commit-tx)
 
 (begin-tx "Locked Pool Claim: APY works as expected, bonus was a one time thing")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person2"])
 (env-data { "person2-keyset": { "keys": ["person2"], "pred": "="} })
 (env-sigs
   [{
     "key": "person2",
     "caps": [
-      (free.marmalade-nft-staking.CLAIM "pool2" "person2")
+      (free.doc-bond-staking.CLAIM "pool2" "person2")
     ]
   }])
 
@@ -289,14 +289,14 @@
 
 ;; Unstaking
 (begin-tx "Locked Pool Unstake after end")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person2"])
 (env-data { "person2-keyset": { "keys": ["person2"], "pred": "="} })
 (env-sigs
   [{
     "key": "person2",
     "caps": [
-      (free.marmalade-nft-staking.UNSTAKE "pool2" "person2" 1.0)
+      (free.doc-bond-staking.UNSTAKE "pool2" "person2" 1.0)
     ]
   }])
 (env-chain-data { "block-time": (time "2002-01-01T00:00:00Z") })
@@ -316,7 +316,7 @@
 (commit-tx)
 
 (begin-tx "Locked Pool Stake after end")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person2"])
 (env-data { "person2-keyset": { "keys": ["person2"], "pred": "="} })
 (env-sigs
@@ -324,7 +324,7 @@
     "key": "person2",
     "caps": [
       (marmalade.ledger.TRANSFER "token" "person2" (get-pool-escrow "pool2") 2.0)
-      (free.marmalade-nft-staking.STAKE "pool2" "person2" 2.0)
+      (free.doc-bond-staking.STAKE "pool2" "person2" 2.0)
     ]
   }])
 

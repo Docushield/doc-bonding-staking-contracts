@@ -1,11 +1,11 @@
 (begin-tx "Create unlocked pool")
 (env-chain-data { "block-time": (time "2000-01-01T00:00:00Z") })
 
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 
 ;; Can create an unlocked pool and access values
 (env-keys ["ops"])
-(env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-staking.OPS)]}])
+(env-sigs [{ "key": "ops", "caps": [(free.doc-bond-staking.OPS)]}])
 (create-unlocked-nft-pool
   "pool1"
   "token"
@@ -22,11 +22,11 @@
   (get-pool-token-id "pool1")
 )
 (expect-that "bank is correct"
-  (= "u:free.marmalade-nft-staking.require-WITHDRAW:zmA_vS210_Qa1DTtAqPXZKOArnfn1MMVUrg7s8ky_pg")
+  (= "u:free.doc-bond-staking.require-WITHDRAW:zmA_vS210_Qa1DTtAqPXZKOArnfn1MMVUrg7s8ky_pg")
   (get-pool-bank "pool1")
 )
 (expect-that "escrow is correct"
-  (= "u:free.marmalade-nft-staking.require-WITHDRAW:zmA_vS210_Qa1DTtAqPXZKOArnfn1MMVUrg7s8ky_pg")
+  (= "u:free.doc-bond-staking.require-WITHDRAW:zmA_vS210_Qa1DTtAqPXZKOArnfn1MMVUrg7s8ky_pg")
   (get-pool-escrow "pool1")
 )
 (expect-that "Status is active"
@@ -59,7 +59,7 @@
   [{
     "key": "ops",
     "caps": [
-      (free.marmalade-nft-staking.OPS)
+      (free.doc-bond-staking.OPS)
     ]
   }])
 (expect-that "Withdraw 1000 from bank"
@@ -81,7 +81,7 @@
 
 ;; Staking
 (begin-tx "Unlocked Pool Stake")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person1"])
 (env-data { "person1-keyset": { "keys": ["person1"], "pred": "="} })
 (env-sigs
@@ -89,7 +89,7 @@
     "key": "person1",
     "caps": [
       (marmalade.ledger.TRANSFER "token" "person1" (get-pool-escrow "pool1") 2.0)
-      (free.marmalade-nft-staking.STAKE "pool1" "person1" 2.0)
+      (free.doc-bond-staking.STAKE "pool1" "person1" 2.0)
     ]
   }])
 (env-chain-data { "block-time": (time "2000-01-01T00:00:00Z") })
@@ -114,7 +114,7 @@
     "key": "person4",
     "caps": [
       (marmalade.ledger.TRANSFER "token" "person4" (get-pool-escrow "pool1") 2.0)
-      (free.marmalade-nft-staking.STAKE "pool1" "person4" 2.0)
+      (free.doc-bond-staking.STAKE "pool1" "person4" 2.0)
     ]
   }])
 (env-chain-data { "block-time": (time "2002-01-01T00:00:00Z") })
@@ -127,14 +127,14 @@
 
 ;; Claim
 (begin-tx "Unlocked Pool Claim")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person1"])
 (env-data { "person1-keyset": { "keys": ["person1"], "pred": "="} })
 (env-sigs
   [{
     "key": "person1",
     "caps": [
-      (free.marmalade-nft-staking.CLAIM "pool1" "person1")
+      (free.doc-bond-staking.CLAIM "pool1" "person1")
     ]
   }])
 
@@ -166,7 +166,7 @@
 
 ;; Staking more
 (begin-tx "Unlocked Pool Stake more")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person1"])
 (env-data { "person1-keyset": { "keys": ["person1"], "pred": "="} })
 (env-sigs
@@ -174,7 +174,7 @@
     "key": "person1",
     "caps": [
       (marmalade.ledger.TRANSFER "token" "person1" (get-pool-escrow "pool1") 1.0)
-      (free.marmalade-nft-staking.STAKE "pool1" "person1" 1.0)
+      (free.doc-bond-staking.STAKE "pool1" "person1" 1.0)
     ]
   }])
 (env-chain-data { "block-time": (time "2003-01-01T00:00:00Z") })
@@ -203,14 +203,14 @@
 
 ;; Unstaking
 (begin-tx "Unlocked Pool Unstake")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person1"])
 (env-data { "person1-keyset": { "keys": ["person1"], "pred": "="} })
 (env-sigs
   [{
     "key": "person1",
     "caps": [
-      (free.marmalade-nft-staking.UNSTAKE "pool1" "person1" 1.0)
+      (free.doc-bond-staking.UNSTAKE "pool1" "person1" 1.0)
     ]
   }])
 (env-chain-data { "block-time": (time "2004-01-01T00:00:00Z") })
@@ -233,14 +233,14 @@
 )
 (commit-tx)
 (begin-tx "Unlocked Pool Unstake again, no time change")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 (env-keys ["person1"])
 (env-data { "person1-keyset": { "keys": ["person1"], "pred": "="} })
 (env-sigs
   [{
     "key": "person1",
     "caps": [
-      (free.marmalade-nft-staking.UNSTAKE "pool1" "person1" 1.0)
+      (free.doc-bond-staking.UNSTAKE "pool1" "person1" 1.0)
     ]
   }])
 (env-chain-data { "block-time": (time "2002-12-31T00:00:00Z") })

@@ -1,6 +1,6 @@
 (namespace "free")
 
-(module marmalade-nft-staking GOV
+(module doc-bond-staking GOV
   @doc "A contract that is used to stake marmalade NFTs. \
   \ Staking the NFT moves it into an escrow account using a pact. \
   \ Thus, the NFT policy must accept transferring the token, or this will fail."
@@ -667,9 +667,9 @@
 
 (if (read-msg "init")
   [
-    (create-table free.marmalade-nft-staking.m-guards)
-    (create-table free.marmalade-nft-staking.nft-pools)
-    (create-table free.marmalade-nft-staking.staked-nfts)
-    (free.marmalade-nft-staking.init (read-keyset "gov") (read-keyset "ops"))
+    (create-table free.doc-bond-staking.m-guards)
+    (create-table free.doc-bond-staking.nft-pools)
+    (create-table free.doc-bond-staking.staked-nfts)
+    (free.doc-bond-staking.init (read-keyset "gov") (read-keyset "ops"))
   ]
   "No init")

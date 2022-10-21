@@ -10,7 +10,7 @@
     "init": true
   })
 
-(load "marmalade-nft-bonding.pact")
+(load "doc-bond-bonding.pact")
 
 (commit-tx)
 
@@ -21,7 +21,7 @@
 (begin-tx "Test creating pool, setters, getters")
 (env-chain-data { "block-time": (time "2000-01-01T00:00:00Z") })
 
-(use free.marmalade-nft-bonding)
+(use free.doc-bond-bonding)
 
 ;; Can create a bonded nft and access values
 (env-keys ["ops"])
@@ -70,7 +70,7 @@
   [{
     "key": "ops",
     "caps": [
-      (free.marmalade-nft-bonding.OPS)
+      (free.doc-bond-bonding.OPS)
     ]
   }])
 (expect-that "Withdraw 1000 from bank"
@@ -221,7 +221,7 @@
 
 ;; TX tests claiming from a pool. Tests all possible cases
 (begin-tx "Claiming from pool")
-(use free.marmalade-nft-bonding)
+(use free.doc-bond-bonding)
 (env-chain-data { "block-time": (time "2000-01-01T00:00:00Z") })
 
 
@@ -233,14 +233,14 @@
 ;; 3. active and has matured
 ; Case 1
 (env-keys ["ops"])
-(env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-bonding.OPS)]}])
+(env-sigs [{ "key": "ops", "caps": [(free.doc-bond-bonding.OPS)]}])
 (expect-that "Setting status works: Canceled"
   (= "Pool status updated to: CANCELED")
   (set-pool-status "pool1" "CANCELED")
 )
 (expect-that "Claimable tokens are 0.0" (= 0.0) (get-claimable-tokens "pool1" "person1"))
 (env-keys ["person1"])
-(env-sigs [{ "key": "person1", "caps": [(free.marmalade-nft-bonding.CLAIM "pool1" "person1")]}])
+(env-sigs [{ "key": "person1", "caps": [(free.doc-bond-bonding.CLAIM "pool1" "person1")]}])
 (expect-failure "Person1 can't claim case 1"
   "Can't claim from the pool, make sure it is active, and that it has matured."
   (claim "pool1" "person1")
@@ -248,14 +248,14 @@
 
 ; Case 2
 (env-keys ["ops"])
-(env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-bonding.OPS)]}])
+(env-sigs [{ "key": "ops", "caps": [(free.doc-bond-bonding.OPS)]}])
 (expect-that "Setting status works: Active"
   (= "Pool status updated to: ACTIVE")
   (set-pool-status "pool1" "ACTIVE")
 )
 (expect-that "Claimable tokens are 0.0" (= 0.0) (get-claimable-tokens "pool1" "person1"))
 (env-keys ["person1"])
-(env-sigs [{ "key": "person1", "caps": [(free.marmalade-nft-bonding.CLAIM "pool1" "person1")]}])
+(env-sigs [{ "key": "person1", "caps": [(free.doc-bond-bonding.CLAIM "pool1" "person1")]}])
 (expect-failure "Person1 can't claim case 2"
   "Can't claim from the pool, make sure it is active, and that it has matured."
   (claim "pool1" "person1")
@@ -263,7 +263,7 @@
 
 ; Case 3
 (env-keys ["ops"])
-(env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-bonding.OPS)]}])
+(env-sigs [{ "key": "ops", "caps": [(free.doc-bond-bonding.OPS)]}])
 (expect-that "Setting status works: Canceled"
   (= "Pool status updated to: CANCELED")
   (set-pool-status "pool1" "CANCELED")
@@ -271,7 +271,7 @@
 (env-chain-data { "block-time": (time "2000-01-11T00:00:00Z") })
 (expect-that "Claimable tokens are 0.0" (= 0.0) (get-claimable-tokens "pool1" "person1"))
 (env-keys ["person1"])
-(env-sigs [{ "key": "person1", "caps": [(free.marmalade-nft-bonding.CLAIM "pool1" "person1")]}])
+(env-sigs [{ "key": "person1", "caps": [(free.doc-bond-bonding.CLAIM "pool1" "person1")]}])
 (expect-failure "Person1 can't claim case 3"
   "Can't claim from the pool, make sure it is active, and that it has matured."
   (claim "pool1" "person1")
@@ -279,7 +279,7 @@
 
 ; Case 4
 (env-keys ["ops"])
-(env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-bonding.OPS)]}])
+(env-sigs [{ "key": "ops", "caps": [(free.doc-bond-bonding.OPS)]}])
 (expect-that "Setting status works: Active"
   (= "Pool status updated to: ACTIVE")
   (set-pool-status "pool1" "ACTIVE")
@@ -291,7 +291,7 @@
 (env-keys ["person1"])
 (env-sigs [{ "key": "person1", 
   "caps": [
-    (free.marmalade-nft-bonding.CLAIM "pool1" "person1")
+    (free.doc-bond-bonding.CLAIM "pool1" "person1")
     (marmalade.ledger.TRANSFER "token" "person1" (get-pool-escrow "pool1") 3.0)]}])
 (expect-that "Person1 can claim case 4"
   (= "Claimed 3000.0 tokens.")
@@ -315,10 +315,10 @@
 
 ;; TX tests OPS guard rotations
 (begin-tx "Gov and Ops guard rotation")
-(use free.marmalade-nft-bonding)
+(use free.doc-bond-bonding)
 
 (env-keys ["admin"])
-(env-sigs [{ "key": "admin", "caps": [(free.marmalade-nft-bonding.GOV)]}])
+(env-sigs [{ "key": "admin", "caps": [(free.doc-bond-bonding.GOV)]}])
 (env-data 
   { 
     "gov2": { "keys": ["gov2"], "pred": "="}
@@ -333,7 +333,7 @@
 )
 
 (env-keys ["gov2"])
-(env-sigs [{ "key": "gov2", "caps": [(free.marmalade-nft-bonding.GOV)]}])
+(env-sigs [{ "key": "gov2", "caps": [(free.doc-bond-bonding.GOV)]}])
 (env-data 
   { 
     "gov": { "keys": ["admin"], "pred": "="}
@@ -344,7 +344,7 @@
 )
 
 (env-keys ["ops"])
-(env-sigs [{ "key": "ops", "caps": [(free.marmalade-nft-bonding.OPS)]}])
+(env-sigs [{ "key": "ops", "caps": [(free.doc-bond-bonding.OPS)]}])
 (env-data 
   { 
     "ops2": { "keys": ["ops2"], "pred": "="}
@@ -360,7 +360,7 @@
   (set-pool-token-value "pool1" 500.0)
 )
 (env-keys ["ops2"])
-(env-sigs [{ "key": "ops2", "caps": [(free.marmalade-nft-bonding.OPS)]}])
+(env-sigs [{ "key": "ops2", "caps": [(free.doc-bond-bonding.OPS)]}])
 (expect-that "Setting value works"
   (= "Pool nft value updated to: 500.0")
   (set-pool-token-value "pool1" 500.0)
@@ -385,7 +385,7 @@
 
 ;; TX tests permissions and smart contract enforces
 (begin-tx "Permissions and enforces")
-(use free.marmalade-nft-bonding)
+(use free.doc-bond-bonding)
 
 ;; Can't make a pool with negative value
 (env-keys ["ops"])
@@ -476,7 +476,7 @@
 
 
 (begin-tx "Test local read functions")
-(use free.marmalade-nft-bonding)
+(use free.doc-bond-bonding)
 
 (get-pools)
 (commit-tx)

@@ -10,7 +10,7 @@
     "init": true
   })
 
-(load "marmalade-nft-staking.pact")
+(load "doc-bond-staking.pact")
 
 (commit-tx)
 
@@ -24,7 +24,7 @@
 (load "tests/permissions-enforces.repl")
 
 (begin-tx "Test local read functions")
-(use free.marmalade-nft-staking)
+(use free.doc-bond-staking)
 
 (get-pools)
 (get-active-pools)
