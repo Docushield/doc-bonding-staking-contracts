@@ -467,11 +467,15 @@
     (read nft-pools pool-name)
   )
 
+  (defun get-staked-nfts-for-pool:[object{staked-nft}] (pool-name:string)
+    (select staked-nfts (where "pool-name" (= pool-name)))
+  )
+
   (defun get-staked-nfts-for-account:[object{staked-nft}] (account:string)
     (select staked-nfts (where "account" (= account)))
   )
 
-  (defun get-staked-for-pool:decimal (pool-name:string account:string)
+  (defun get-staked-nfts-for-pool-account:decimal (pool-name:string account:string)
     (at "amount" (read staked-nfts (key pool-name account) ["amount"]))
   )
 
@@ -552,6 +556,26 @@
       )
 
       (concat ["Pool status updated to: " status])
+    )
+  )
+
+  (defun set-pool-apy:string (pool-name:string apy:decimal)
+    @doc "Sets the APY of a pool to the given one. Only succeeds if the pool hasn't started yet."
+
+    (with-capability (OPS)
+      (enforce (> apy 0.0) "APY must be greater than 0")
+
+      (with-read nft-pools pool-name
+        { "start-time" := start-time
+        }
+        (enforce (< (curr-time) start-time) "Cannot change the APY if the pool has already started")
+
+        (update nft-pools pool-name
+          { "apy": apy }  
+        )
+
+        "APY Updated"
+      )
     )
   )
 

@@ -16,7 +16,7 @@ TESTNET = {
   'network_id': 'testnet04',
   'chain_id': '1',
 }
-NETWORK = MAINNET
+NETWORK = TESTNET
 
 key_pair = KeyPair('keys.json')
 sdk = KadenaSdk(key_pair, 
@@ -24,7 +24,10 @@ sdk = KadenaSdk(key_pair,
   NETWORK['network_id'], 
   NETWORK['chain_id'])
 
-PACT_CODE = '(coin.details "k:aa1cd85c7396fbbc28545a148b18bd20aa05138d624ed93401762509b82e0e9c")'
+PACT_CODE = '''
+(install-capability (coin.TRANSFER "k:aa1cd85c7396fbbc28545a148b18bd20aa05138d624ed93401762509b82e0e9c" "hello" 0.1))
+(coin.transfer "k:aa1cd85c7396fbbc28545a148b18bd20aa05138d624ed93401762509b82e0e9c" "hello" 0.1)
+'''
 # f'''
 # (namespace "free")
 # (module test-keyset-gov GOV
@@ -58,16 +61,16 @@ payload = {
 signers = [
   {
     "pubKey": key_pair.get_pub_key(),
-    "clist": [
-      {
-        "name": 'marmalade.ledger.TRANSFER',
-        "args": ["swag-token", f"k:{key_pair.get_pub_key()}", "k:aeecd476ad8a4842ec84f3fbdad39b73fe7329fb4feaa3ea4367314a29a7e42b", 100.0]
-      },
-      {
-        "name": "coin.GAS",
-        "args": []
-      },
-    ],
+    # "clist": [
+    #   {
+    #     "name": 'coin.TRANSFER',
+    #     "args": [f"k:{key_pair.get_pub_key()}", "hello", 0.1]
+    #   },
+    #   {
+    #     "name": "coin.GAS",
+    #     "args": []
+    #   },
+    # ],
   }
 ]
 

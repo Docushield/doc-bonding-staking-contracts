@@ -59,13 +59,13 @@ class KadenaSdk():
     return requests.post(self.build_url(self.SEND), json=cmds)
   
   
-  def local(self, command):
+  def local(self, command, sign=True):
     cmd_json = json.dumps(command)
     hash_code, sig = self.sign(cmd_json)
     
     cmd = {
       'hash': hash_code,
-      'sigs': [{'sig': sig}],
+      'sigs': [{'sig': sig}] if sign else [],
       'cmd': cmd_json,
     }
 
