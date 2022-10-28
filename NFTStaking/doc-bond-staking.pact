@@ -246,7 +246,7 @@
             start-time ; start earning when the pool starts
             (curr-time) ; Otherwise, start earning immediately
           ) 
-        , "bonus": lock-bonus
+        , "bonus": (* lock-bonus amount)
         }
         { "amount" := curr-amount
         , "bonus" := bonus
@@ -285,8 +285,16 @@
             )
 
             ; Update the amount staked, current time is handled by claim, or by insert
-            (update staked-nfts (key pool-name account)
-              { "amount": (+ curr-amount amount) }
+            (if (> lock-bonus 0.0)
+              (update staked-nfts (key pool-name account)
+                { "amount": (+ curr-amount amount)
+                , "bonus": (+ bonus (* lock-bonus amount))
+                }
+              )
+              (update staked-nfts (key pool-name account)
+                { "amount": (+ curr-amount amount)
+                }
+              )
             )
           )
         )
@@ -320,6 +328,7 @@
         , "start-time" := start-time
         , "lock-time-seconds" := lock-time
         , "status" := status
+        , "lock-bonus" := lock-bonus
         }
 
         ; If we are a locked pool, fail to unstake while the pool is locked
@@ -359,8 +368,16 @@
           )
 
           ; Update staked nfts info
-          (update staked-nfts (key pool-name account)
-            { "amount": (- curr-amount amount) }
+          (if (> lock-bonus 0.0)
+            (update staked-nfts (key pool-name account)
+              { "amount": (- curr-amount amount)
+              , "bonus": (- bonus (* lock-bonus amount))
+              }
+            )
+            (update staked-nfts (key pool-name account)
+              { "amount": (- curr-amount amount)
+              }
+            )
           )
         )
       )
@@ -483,12 +500,20 @@
     (at "stake-start-time" (read staked-nfts (key pool-name account) ["stake-start-time"]))
   )
 
+  (defun get-bonus-for-pool-account:time (pool-name:string account:string)
+    (at "bonus" (read staked-nfts (key pool-name account) ["bonus"]))
+  )
+
   (defun get-pool-token-id:string (pool-name:string)
     (at "token-id" (read nft-pools pool-name ["token-id"]))
   )
 
   (defun get-pool-apy:decimal (pool-name:string)
     (at "apy" (read nft-pools pool-name ["apy"]))
+  )
+
+  (defun get-pool-lock-bonus:decimal (pool-name:string)
+    (at "lock-bonus" (read nft-pools pool-name ["lock-bonus"]))
   )
 
   (defun get-pool-bank:string (pool-name:string)
@@ -509,10 +534,6 @@
 
   (defun get-pool-lock-time:decimal (pool-name:string)
     (at "lock-time-seconds" (read nft-pools pool-name ["lock-time-seconds"]))
-  )
-
-  (defun get-pool-lock-bonus:decimal (pool-name:string)
-    (at "lock-bonus" (read nft-pools pool-name ["lock-bonus"]))
   )
 
   (defun get-pool-is-locked-pool:decimal (pool-name:string)
@@ -576,6 +597,45 @@
 
         "APY Updated"
       )
+    )
+  )
+
+  (defun set-pool-bonus:string (pool-name:string bonus:decimal)
+    @doc "Sets the bonus of a pool to the given one. \
+    \ Only succeeds if the pool hasn't started yet. \
+    \ This is an expensive operation. Use wisely."
+
+    (with-capability (OPS)
+      (enforce (>= bonus 0.0) "Bonus must be greater than or equal to 0")
+
+      (with-read nft-pools pool-name
+        { "start-time" := start-time
+        }
+        (enforce (< (curr-time) start-time) "Cannot change the bonus if the pool has already started")
+
+        (update nft-pools pool-name
+          { "lock-bonus": bonus }  
+        )
+
+        ;; Loop through each NFT in this pool and update its bonus as well
+        (map 
+          (update-staked-nft-bonus pool-name bonus) 
+          (select staked-nfts ["account" "amount"] (where "pool-name" (= pool-name)))
+        )
+
+        "Bonus Updated"
+        ;  (select staked-nfts ["account" "amount"] (where "pool-name" (= pool-name)))
+      )
+    )
+  )
+
+  (defun update-staked-nft-bonus:string (pool-name:string new-bonus:decimal account-info:object)
+    @doc "Private function to update the bonus of individual staked NFTs"
+
+    (require-capability (OPS))
+
+    (update staked-nfts (key pool-name (at "account" account-info))
+      { "bonus": (* new-bonus (at "amount" account-info)) }
     )
   )
 

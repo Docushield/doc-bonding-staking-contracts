@@ -356,6 +356,16 @@
     (read-keyset "person3-keyset"))
 )
 
+(expect-failure "Can't call set apy without ops"
+  "Keyset failure (=): [ops]"
+  (set-pool-apy "perms-locked" 100.0)
+)
+
+(expect-failure "Can't call set bonus without ops"
+  "Keyset failure (=): [ops]"
+  (set-pool-bonus "perms-locked" 100.0)
+)
+
 (expect-failure "Can't call init without gov"
   "Database exception"
   (init (read-keyset "person3-keyset") (read-keyset "person3-keyset"))
@@ -366,51 +376,6 @@
 )
 
 (commit-tx)
-
-
-(begin-tx "Test setting APY before start")
-(use free.doc-bond-staking)
-(env-keys ["ops"])
-(env-sigs
-  [{
-    "key": "ops",
-    "caps": [
-      (free.doc-bond-staking.OPS)
-    ]
-  }])
-
-(env-chain-data { "block-time": (time "1970-01-01T00:00:00Z") })
-(create-unlocked-nft-pool
-  "apy-swap"
-  "token"
-  coin
-  0.1
-  1000.0
-  (time "2000-01-01T00:00:00Z"))
-
-
-(expect-that "Can change APY before start"
-  (= "APY Updated")
-  (set-pool-apy "apy-swap" 0.2)
-)
-
-(expect-failure "Can't do zero APY"
-  "APY must be greater than 0"
-  (set-pool-apy "apy-swap" 0.0)
-)
-(expect-failure "Can't do negative APY"
-  "APY must be greater than 0"
-  (set-pool-apy "apy-swap" -0.1)
-)
-
-(env-chain-data { "block-time": (time "2001-01-01T00:00:00Z") })
-(expect-failure "Can't change APY after start"
-  "Cannot change the APY if the pool has already started"
-  (set-pool-apy "apy-swap" 0.3)
-)
-
-(commit-tx)
-
 
 
 (begin-tx "Calculate claimable tests")

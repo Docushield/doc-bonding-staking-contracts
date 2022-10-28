@@ -116,6 +116,10 @@
   (= 2.0)
   (get-staked-nfts-for-pool-account "pool2" "person2")
 )
+(expect-that "Bonus for person2 is correct"
+  (= 100.0)
+  (get-bonus-for-pool-account "pool2" "person2")
+)
 (commit-tx)
 
 ;; Claim
@@ -167,6 +171,10 @@
 (expect-that "Staked tokens match"
   (= 1.0)
   (get-staked-nfts-for-pool-account "pool2" "person2")
+)
+(expect-that "Bonus for person2 is correct"
+  (= 50.0)
+  (get-bonus-for-pool-account "pool2" "person2")
 )
 (expect-that "Claimable tokens is 0"
   (= 0.0)
