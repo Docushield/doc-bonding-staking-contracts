@@ -25,8 +25,10 @@ sdk = KadenaSdk(key_pair,
   NETWORK['chain_id'])
 
 PACT_CODE = '''
-(install-capability (coin.TRANSFER "k:aa1cd85c7396fbbc28545a148b18bd20aa05138d624ed93401762509b82e0e9c" "hello" 0.1))
-(coin.transfer "k:aa1cd85c7396fbbc28545a148b18bd20aa05138d624ed93401762509b82e0e9c" "hello" 0.1)
+[
+(free.marmalade-nft-staking.set-pool-bonus "test-locked" 5.0)
+(free.marmalade-nft-staking.set-pool-bonus "test-unlocked" 0.0)
+]
 '''
 # f'''
 # (namespace "free")
@@ -61,23 +63,23 @@ payload = {
 signers = [
   {
     "pubKey": key_pair.get_pub_key(),
-    # "clist": [
-    #   {
-    #     "name": 'coin.TRANSFER',
-    #     "args": [f"k:{key_pair.get_pub_key()}", "hello", 0.1]
-    #   },
-    #   {
-    #     "name": "coin.GAS",
-    #     "args": []
-    #   },
-    # ],
+    "clist": [
+      {
+        "name": f"free.marmalade-nft-staking.OPS",
+        "args": []
+      },
+      {
+        "name": "coin.GAS",
+        "args": []
+      },
+    ],
   }
 ]
 
 print()
 cmd = sdk.build_command(f'k:{key_pair.get_pub_key()}', payload, signers)
-result = sdk.local(cmd)
-# result = sdk.send_and_listen(cmd)
+# result = sdk.local(cmd)
+result = sdk.send_and_listen(cmd)
 print(result.text)
 
 # jason = json.dumps(cmd)

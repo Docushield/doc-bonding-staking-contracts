@@ -756,4 +756,4 @@
     (create-table free.doc-bond-staking.staked-nfts)
     (free.doc-bond-staking.init (read-keyset "gov") (read-keyset "ops"))
   ]
-  "No init")
+  "No init, contract successfully deployed")

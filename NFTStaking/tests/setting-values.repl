@@ -101,10 +101,10 @@
       (free.doc-bond-staking.OPS)
     ]
   }])
-;  (expect-that "Can change bonus before start"
-;    (= "Bonus Updated")
-;    )
+(expect-that "Can change bonus before start"
+  (= "Bonus Updated")
   (set-pool-bonus "bonus-swap" 100.0)
+)
 (expect-that "Bonus was updated"
   (= 100.0)
   (get-pool-lock-bonus "bonus-swap")

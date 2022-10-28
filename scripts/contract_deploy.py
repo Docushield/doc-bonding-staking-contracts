@@ -22,7 +22,7 @@ TESTNET = {
   'network_id': 'testnet04',
   'chain_id': '1',
 }
-NETWORK = MAINNET
+NETWORK = TESTNET
 
 key_pair = KeyPair('keys.json')
 sdk = KadenaSdk(key_pair, 
@@ -40,6 +40,7 @@ payload = {
   "exec": {
     "data": {
       "gov": { "keys": ["86f16edfb6d0535248c354557ec663cc44b06f5bfa10d034994cfddcddb00ec0"], "pred": "keys-all"},
+      "ops": { "keys": ["86f16edfb6d0535248c354557ec663cc44b06f5bfa10d034994cfddcddb00ec0"], "pred": "keys-all"},
       "init": init
     },
     "code": contract_content,
