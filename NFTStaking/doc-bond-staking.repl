@@ -26,11 +26,11 @@
 ;; Setting values on pools
 (load "tests/setting-values.repl")
 
-;  (begin-tx "Test local read functions")
-;  (use free.doc-bond-staking)
+(begin-tx "Test local read functions")
+(use free.doc-bond-staking)
 
-;  (get-pools)
-;  (get-active-pools)
-;  (get-pool-details "pool2")
-;  (get-staked-nfts-for-pool "pool2")
-;  (commit-tx)
+(get-pools)
+(get-active-pools)
+(get-pool-details "pool2")
+(get-staked-nfts-for-pool "pool2")
+(commit-tx)
